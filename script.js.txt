@@ -1,0 +1,72 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  text-align: center;
+  padding: 20px;
+}
+
+.container {
+  max-width: 400px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.number-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.number-btn {
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+}
+
+#payBtn, .withdraw-btn {
+  padding: 10px 20px;
+  margin-top: 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.withdraw-btn {
+  background-color: green;
+}const express = require("express");
+const Razorpay = require("razorpay");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+
+const razorpay = new Razorpay({
+  key_id: process.env.KEY_ID || "rzp_test_YourKey",
+  key_secret: process.env.KEY_SECRET || "YourSecret"
+});
+
+app.post("/create-order", async (req, res) => {
+  const amount = 100 * 100;
+
+  const options = {
+    amount: amount,
+    currency: "INR",
+    receipt: "receipt_order_" + Math.floor(Math.random() * 10000)
+  };
+
+  try {
+    const order = await razorpay.orders.create(options);
+    res.json({ success: true, order });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.listen(5000, () => console.log("Server running on http://localhost:5000"));
